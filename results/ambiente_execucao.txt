@@ -1,0 +1,8 @@
+﻿Data da coleta: 2026-11-24 17:17:17
+Sistema Operacional: Microsoft Windows 10 Pro (10.0.19045)
+Processador: Intel(R) Core(TM) i5-8400 CPU @ 2.80GHz (6 nucleos fisicos / 6 threads)
+Memoria RAM: 15.96 GB
+Versao do Go: go version go1.27.4 windows/amd64
+Parametros: warmup=100, iterations=1000
+Protocolos: REST (HTTP/1.1, JSON, keep-alive, sem TLS) vs gRPC (HTTP/2, Protobuf, conexao persistente, sem TLS)
+Rede: Loopback TCP local (127.0.0.1)

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package benchmark;
+
+option go_package = "grpc-x-rest/proto/benchmarkpb";
+
+service BenchmarkService {
+  rpc GetBatch (BatchRequest) returns (BatchResponse);
+}
+
+message BatchRequest {
+  string payload_size = 1;
+}
+
+message Item {
+  int64 id = 1;
+  string code = 2;
+  string name = 3;
+  string category = 4;
+  string description = 5;
+  double price = 6;
+  int32 quantity = 7;
+  bool active = 8;
+}
+
+message BatchResponse {
+  string payload_size = 1;
+  repeated Item items = 2;
+}
