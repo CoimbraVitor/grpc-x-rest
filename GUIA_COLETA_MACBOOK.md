@@ -1,105 +1,101 @@
-# Guia de Coleta Limpa no MacBook (macOS)
+# Protocolo de Coleta e Reprodutibilidade (macOS)
 
-Executar o benchmark em ambiente isolado (com todos os aplicativos fechados) é uma excelente prática de **Validade Interna** em Engenharia de Software Experimental, pois reduz o ruído de escalonamento de CPU, picos de *tail latency* e interferência de I/O.
+Este documento descreve o protocolo de isolamento do ambiente e os procedimentos utilizados para executar a coleta experimental em **macOS (Apple Silicon)**, visando preservar a **Validade Interna** do experimento por meio da redução de ruído de escalonamento de CPU, picos de *tail latency* e interferência de I/O.
 
-> **Sobre o relógio no macOS:** o código em `internal/clock/clock_other.go` utiliza automaticamente o relógio monotônico de alta resolução do Go no macOS (`mach_absolute_time`), que possui precisão na ordem de **nanossegundos** nativamente (sem a limitação de 0,5 ms do Windows).
+> **Instrumentação de tempo no macOS:** o pacote `internal/clock/clock_other.go` utiliza o relógio monotônico nativo do Go no macOS (`mach_absolute_time`), oferecendo resolução na ordem de **nanossegundos** para medições sub-milissegundo.
 
 ---
 
-## 1. Pré-requisitos no MacBook (instale uma única vez)
+## 1. Pré-requisitos
 
-Abra o **Terminal** no macOS e verifique se Go e Python 3 estão instalados:
+Verifique se o **Go** e o **Python 3** estão disponíveis no ambiente:
 
 ```bash
 go version
 python3 --version
 ```
 
-Se algum deles não estiver instalado (usando Homebrew):
+Caso seja necessário instalar o Go via Homebrew:
 
 ```bash
-# Instalar Go (se necessário)
 brew install go
-
-# Instalar bibliotecas Python para gerar a planilha do Minitab e validar os testes
-python3 -m pip install --user scipy numpy pandas openpyxl
 ```
 
-*(Nota: você **não** precisa instalar `protoc` no MacBook, pois os arquivos gerados `proto/benchmarkpb/*.pb.go` já estão commitados no repositório!)*
+Crie um ambiente virtual Python (`.venv`) e instale as bibliotecas utilizadas pelo script de consolidação e validação estatística (`scripts/analyze_and_export.py`):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install scipy numpy pandas openpyxl
+```
+
+*(Observação: não é necessário instalar `protoc`, pois o código Go gerado a partir do contrato `.proto` já está versionado em `proto/benchmarkpb/`.)*
 
 ---
 
-## 2. Checklist de Isolamento do Ambiente (antes de rodar)
+## 2. Protocolo de Isolamento do Ambiente
 
-Para obter medições limpas e reprodutíveis:
+Antes de iniciar a execução dos benchmarks, adotaram-se as seguintes condições de controle:
 
-1. **Conecte o MacBook na tomada** (evita modo de economia de energia / redução de clock da CPU).
-2. **Desative o Modo Pouca Energia** em *Ajustes do Sistema → Bateria*.
-3. **Feche todos os aplicativos abertos** (navegadores, Slack, Discord, VS Code, Docker, Spotify, etc.), mantendo apenas o **Terminal** aberto.
-4. **Pause sincronizações em segundo plano** (OneDrive, Google Drive, iCloud Drive, Dropbox, Time Machine).
-5. **Ative o modo "Não Perturbe"** (ou desconecte o Wi-Fi durante a coleta, já que o benchmark usa apenas loopback local `127.0.0.1` e não precisa de internet depois que as dependências Go forem baixadas).
-6. **Baixe as dependências Go antes de desconectar o Wi-Fi:**
+1. **Alimentação na tomada:** equipamento conectado à fonte de energia para evitar redução dinâmica de clock (*thermal/power throttling*).
+2. **Modo Pouca Energia desativado:** configurado em *Ajustes do Sistema → Bateria*.
+3. **Encerramento de aplicativos concorrentes:** navegadores, IDEs, clientes de mensageria, containers e reprodutores de mídia encerrados, mantendo apenas o Terminal ativo.
+4. **Pausa de serviços de sincronização em segundo plano:** iCloud Drive, OneDrive, Google Drive, Dropbox e Time Machine pausados durante a coleta.
+5. **Modo "Não Perturbe" ativo** (e, opcionalmente, Wi-Fi desativado após o download das dependências Go, visto que o experimento opera exclusivamente em *loopback* local `127.0.0.1`).
+6. **Pré-carregamento de dependências Go:**
    ```bash
-   cd /caminho/para/grpc-x-rest
    go mod download
    ```
-7. **Não utilize o computador** durante os ~1 a 2 minutos de execução do script.
+7. **Sem interação com a máquina** durante toda a execução dos benchmarks (~1 a 2 minutos).
 
 ---
 
-## 3. Como Executar a Coleta no MacBook
+## 3. Execução da Coleta
 
-### Opção A — Automática (recomendada)
+### Opção A — Script Automatizado (`run_benchmark.sh`)
 
-Dê permissão de execução ao script e rode:
+Com o ambiente virtual `.venv` ativado (`source .venv/bin/activate`):
 
 ```bash
 chmod +x run_benchmark.sh
 ./run_benchmark.sh 100 1000
 ```
 
-Isso executa automaticamente:
-1. Registra o hardware real do seu MacBook (modelo da CPU, núcleos, RAM, versão do macOS e versão do Go) em `results/ambiente_execucao.txt`.
-2. Roda o benchmark **REST (HTTP/1.1 + JSON)** (`100` aquecimento + `1.000` medições × 4 payloads = 4.000 amostras) e salva em `results/raw_rest.csv`.
-3. Aguarda 3 segundos de estabilização.
-4. Roda o benchmark **gRPC (HTTP/2 + Protobuf)** (`100` aquecimento + `1.000` medições × 4 payloads = 4.000 amostras) e salva em `results/raw_grpc.csv`.
-5. Executa `scripts/analyze_and_export.py`, gerando:
-   - `results/dados_experimento_minitab.xlsx` — **planilha pronta para abrir no Minitab**;
-   - `results/dados_empilhados.csv` e `results/dados_por_grupo.csv`;
-   - `results/analise_estatistica_validacao.json` — conferência completa de todos os testes;
-   - `results/resumo_tabelas_latex.txt` — **todas as tabelas já prontas em formato LaTeX** com os novos números do seu MacBook para você colar no Overleaf!
+O script executa sequencialmente:
+1. Captura automática das especificações de hardware e software em `results/ambiente_execucao.txt`.
+2. Benchmark **REST (HTTP/1.1 + JSON)** — `100` requisições de aquecimento (*warm-up*) + `1.000` medições válidas por payload (`1KB`, `100KB`, `1MB`, `4MB`), totalizando `4.000` observações em `results/raw_rest.csv`.
+3. Pausa de 3 segundos para estabilização entre protocolos.
+4. Benchmark **gRPC (HTTP/2 + Protocol Buffers)** — `100` requisições de aquecimento + `1.000` medições válidas por payload, totalizando `4.000` observações em `results/raw_grpc.csv`.
+5. Consolidação e validação via `scripts/analyze_and_export.py`, gerando:
+   - `results/dados_experimento_minitab.xlsx` — planilha estruturada para importação no Minitab;
+   - `results/dados_empilhados.csv` e `results/dados_por_grupo.csv` — datasets consolidados em CSV;
+   - `results/analise_estatistica_validacao.json` — resultados numéricos de referência de todos os testes estatísticos;
+   - `results/resumo_tabelas_latex.txt` — tabelas formatadas em LaTeX (padrão decimal ABNT).
 
 ---
 
-### Opção B — Passo a Passo Manual (comando por comando)
-
-Se você preferir controlar cada etapa manualmente no Terminal:
+### Opção B — Execução Manual Etapa por Etapa
 
 ```bash
-# 1. Conferir especificações da máquina (anote para o Quadro do ambiente no relatório)
+# 1. Registro das especificações do ambiente
 sw_vers
 sysctl -n machdep.cpu.brand_string
 sysctl -n hw.physicalcpu hw.logicalcpu hw.memsize
 go version
 
-# 2. Executar o script REST (HTTP/1.1) -> gera results/raw_rest.csv
+# 2. Benchmark REST (HTTP/1.1 + JSON) -> results/raw_rest.csv
 go run ./cmd/rest_bench -warmup 100 -n 1000
 
-# 3. Executar o script gRPC (HTTP/2) -> gera results/raw_grpc.csv
+# 3. Benchmark gRPC (HTTP/2 + Protocol Buffers) -> results/raw_grpc.csv
 go run ./cmd/grpc_bench -warmup 100 -n 1000
 
-# 4. Consolidar para o Minitab e gerar tabelas LaTeX atualizadas
+# 4. Consolidação para o Minitab e geração do resumo estatístico
+source .venv/bin/activate
 python3 ./scripts/analyze_and_export.py
 ```
 
-*(Dica: você pode testar rapidamente com menos iterações antes da coleta oficial, ex.: `go run ./cmd/rest_bench -warmup 10 -n 50`, e depois rodar a coleta final com `-warmup 100 -n 1000`.)*
-
 ---
 
-## 4. Após a Coleta no MacBook: Atualizar Minitab e Overleaf
+## 4. Próxima Etapa — Análise Estatística
 
-1. Abra o novo **`results/dados_experimento_minitab.xlsx`** no Minitab e siga o **[GUIA_MINITAB.md](GUIA_MINITAB.md)** para gerar os prints.
-2. Abra **`results/resumo_tabelas_latex.txt`** e **`results/ambiente_execucao.txt`**:
-   - Copie os dados de hardware do MacBook para o **Quadro 1** do `relatorio/main.tex`;
-   - Substitua os números das **Tabelas 1 a 5** e do texto de resultados do `relatorio/main.tex` pelos valores gerados na coleta limpa do MacBook (eles já vêm formatados com vírgula decimal ABNT em `resumo_tabelas_latex.txt`!).
-3. Confira se o resultado de normalidade (K-S) e os vencedores por faixa de payload se mantiveram ou mudaram no MacBook — o próprio `resumo_tabelas_latex.txt` já destaca automaticamente qual caminho da árvore de decisão foi seguido e quem venceu cada faixa!
+Com os arquivos gerados em `results/`, a reprodução dos gráficos e testes de hipótese no Minitab está documentada em **[GUIA_MINITAB.md](GUIA_MINITAB.md)**.
