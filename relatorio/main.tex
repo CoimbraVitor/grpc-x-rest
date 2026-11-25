@@ -88,6 +88,21 @@
   }%
 }
 
+% Caixa limpa para saidas textuais literais do Minitab (texto vetorial nitido,
+% seguindo o estilo das Figuras 4, 7, 10 e 19 de Sirqueira et al., 2015)
+\definecolor{minitabAzul}{RGB}{0,102,164}
+\definecolor{minitabBorda}{RGB}{200,208,218}
+\definecolor{minitabBg}{RGB}{251,252,254}
+\newcommand{\minitabbox}[2][\linewidth]{%
+  \fcolorbox{minitabBorda}{minitabBg}{%
+    \begin{minipage}{\dimexpr#1-2\fboxsep-2\fboxrule\relax}
+      \vspace{2pt}
+      #2
+      \vspace{2pt}
+    \end{minipage}%
+  }%
+}
+
 \addto\captionsbrazil{\renewcommand{\refname}{REFERÊNCIAS}}
 
 \begin{document}
@@ -320,7 +335,7 @@ A Tabela~1 apresenta o tamanho real em bytes trafegado para o mesmo conjunto ló
 
 \subsection{Estatística Descritiva e Análise Exploratória (Boxplots)}
 
-As estatísticas descritivas geradas no Minitab (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ Display Descriptive Statistics}) para os oito grupos experimentais ($N = 1.000$ por grupo) estão consolidadas na Tabela~2 e ilustradas na Figura~2. Os \textit{boxplots} comparativos por tamanho de payload (\textit{Graph $\rightarrow$ Boxplot $\rightarrow$ One Y / With Groups}) são apresentados na Figura~3.
+As estatísticas descritivas geradas no Minitab (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ Display Descriptive Statistics}) para os oito grupos experimentais ($N = 1.000$ por grupo) estão consolidadas na Tabela~2, seguindo o formato tabular adotado por \citeonline{sirqueira2015}. Os \textit{boxplots} comparativos por tamanho de payload (\textit{Graph $\rightarrow$ Boxplot $\rightarrow$ One Y / With Groups}) são apresentados na Figura~2.
 
 \begin{table}[H]
 \centering
@@ -350,15 +365,8 @@ As estatísticas descritivas geradas no Minitab (\textit{Stat $\rightarrow$ Basi
   & gRPC & 7,0154  & 6,9928  & 0,6973 & 0,4862 & 5,9417  & 6,8828  & 7,2771  & 25,6896 & 0,3943 \\
 \hline
 \end{tabularx}
-\fonte{elaborado pelo autor (2026).}
+\fonte{elaborado pelo autor (2026), com base nos dados processados no Minitab (\texttt{GRPCxREST.mpx}).}
 \end{table}
-
-\begin{figure}[H]
-\centering
-\caption{Saída de estatísticas descritivas no Minitab agrupadas por payload e arquitetura}
-\minitabimg[0.92\linewidth]{descritiva.png}{Stat -> Basic Statistics -> Display Descriptive Statistics}
-\fonte{elaborado pelo autor (2026).}
-\end{figure}
 
 \begin{figure}[H]
 \centering
@@ -384,14 +392,14 @@ As estatísticas descritivas geradas no Minitab (\textit{Stat $\rightarrow$ Basi
   \minitabimg[\linewidth]{boxplot_4mb.png}{Boxplot REST vs. gRPC (4 MB)}
   \par\vspace{2pt}{\footnotesize (d) Payload de 4 MB}
 \end{minipage}
-\fonte{elaborado pelo autor (2026).}
+\fonte{elaborado pelo autor (2026) no Minitab.}
 \end{figure}
 
 Na maioria das distribuições observa-se assimetria positiva (média superior à mediana) decorrente da cauda superior de latência. Nos \textit{boxplots}, nota-se ampla sobreposição em 1~KB com medianas praticamente idênticas (0,0405~ms no REST contra 0,0403~ms no gRPC), seguida de clara separação favorável ao gRPC em 100~KB, 1~MB e 4~MB.
 
 \subsection{Análise de Outliers}
 
-Aplicou-se o teste de Grubbs no Minitab (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ Outlier Test}, $\alpha = 0{,}05$), complementado pela contagem pelos critérios interquartis ($Q_3 + 1{,}5\cdot\text{IQR}$ e $Q_3 + 3\cdot\text{IQR}$), conforme resumido na Tabela~3 e ilustrado na Figura~4.
+Aplicou-se o teste de Grubbs no Minitab (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ Outlier Test}, $\alpha = 0{,}05$), complementado pela contagem pelos critérios interquartis ($Q_3 + 1{,}5\cdot\text{IQR}$ e $Q_3 + 3\cdot\text{IQR}$), conforme resumido na Tabela~3 e reproduzido na saída textual do Minitab da Figura~3.
 
 \begin{table}[H]
 \centering
@@ -421,16 +429,36 @@ Aplicou-se o teste de Grubbs no Minitab (\textit{Stat $\rightarrow$ Basic Statis
 
 \begin{figure}[H]
 \centering
-\caption{Saída do teste de \textit{outliers} (Grubbs) no Minitab ($\alpha = 0{,}05$)}
-\minitabimg[0.88\linewidth]{outliers_grubbs.png}{Stat -> Basic Statistics -> Outlier Test (Grubbs)}
-\fonte{elaborado pelo autor (2026).}
+\caption{Saída do teste de \textit{outliers} (Grubbs) obtida no Minitab ($\alpha = 0{,}05$)}
+\minitabbox[0.95\textwidth]{%
+  \ttfamily\footnotesize
+  \textbf{\color{minitabAzul}Outlier Test: REST\_1KB, gRPC\_1KB, REST\_100KB, gRPC\_100KB, REST\_1MB, gRPC\_1MB, REST\_4MB, gRPC\_4MB}\\[4pt]
+  \textbf{Method}\\
+  Null hypothesis \hspace{1.8cm} All data values come from the same normal population\\
+  Alternative hypothesis \hspace{0.55cm} Smallest or largest data value is an outlier\\
+  Significance level \hspace{1.3cm} $\alpha = 0.05$\\[5pt]
+  \textbf{Grubbs' Test}\\[2pt]
+  \begin{tabular}{@{}lrrrrrrr@{}}
+  \textbf{Variable} & \textbf{N} & \textbf{Mean} & \textbf{StDev} & \textbf{Min} & \textbf{Max} & \textbf{G} & \textbf{P} \\
+  \hline
+  REST\_1KB   & 1000 & 0.045697 & 0.013926 & 0.030166 & 0.239166 & 13.89 & 0.000 \\
+  gRPC\_1KB   & 1000 & 0.045292 & 0.013165 & 0.028541 & 0.182500 & 10.42 & 0.000 \\
+  REST\_100KB & 1000 & 0.51075  & 0.06440  & 0.43033  & 0.85321  &  5.32 & 0.000 \\
+  gRPC\_100KB & 1000 & 0.20345  & 0.04465  & 0.18542  & 0.78850  & 13.10 & 0.000 \\
+  REST\_1MB   & 1000 & 4.7038   & 0.5308   & 4.3140   & 18.8021  & 26.56 & 0.000 \\
+  gRPC\_1MB   & 1000 & 1.7457   & 0.1419   & 1.3694   & 2.3570   &  4.31 & 0.015 \\
+  REST\_4MB   & 1000 & 18.772   & 1.247    & 17.205   & 47.004   & 22.65 & 0.000 \\
+  gRPC\_4MB   & 1000 & 7.0154   & 0.6973   & 5.9417   & 25.6896  & 26.78 & 0.000 \\
+  \end{tabular}
+}
+\fonte{elaborado pelo autor (2026), transcrito da saída do Minitab (\texttt{GRPCxREST.mpx}).}
 \end{figure}
 
 De acordo com \citeonline{sirqueira2015}, \textit{outliers} decorrentes de valores fisicamente possíveis da população não devem ser descartados arbitrariamente. Como os picos observados correspondem à latência de cauda (\textit{tail latency}) causada por pausas do coletor de lixo do Go e escalonamento do sistema operacional, optou-se por mantê-los na amostra e conduzir a inferência por métodos não paramétricos baseados em postos e medianas, naturalmente robustos a valores extremos.
 
 \subsection{Verificação dos Pressupostos: Normalidade e Homocedasticidade}
 
-Dado $N = 1.000 > 30$ em todos os grupos, aplicou-se o \textbf{Teste de Kolmogorov-Smirnov (K-S)} (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ Normality Test}) para testar $H_0$: a amostra segue distribuição normal. Complementarmente, verificou-se a igualdade de variâncias pelo \textbf{Teste de Levene} (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ 2 Variances}). A Tabela~4 sintetiza os resultados, ilustrados nas Figuras~5 e 6.
+Dado $N = 1.000 > 30$ em todos os grupos, aplicou-se o \textbf{Teste de Kolmogorov-Smirnov (K-S)} (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ Normality Test}) para testar $H_0$: a amostra segue distribuição normal. Complementarmente, verificou-se a igualdade de variâncias pelo \textbf{Teste de Levene} (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ 2 Variances}). A Tabela~4 sintetiza os resultados, ilustrados nas Figuras~4 e 5.
 
 \begin{table}[H]
 \centering
@@ -482,21 +510,21 @@ Dado $N = 1.000 > 30$ em todos os grupos, aplicou-se o \textbf{Teste de Kolmogor
   \minitabimg[\linewidth]{ks_grpc_1mb.png}{Teste K-S: gRPC 1 MB}
   \par\vspace{2pt}{\footnotesize (d) gRPC — 1 MB}
 \end{minipage}
-\fonte{elaborado pelo autor (2026).}
+\fonte{elaborado pelo autor (2026) no Minitab.}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \caption{Verificação complementar de homocedasticidade pelo teste de Levene no Minitab (payload de 1 MB)}
 \minitabimg[0.78\linewidth]{levene_1mb.png}{Stat -> Basic Statistics -> 2 Variances (1 MB)}
-\fonte{elaborado pelo autor (2026).}
+\fonte{elaborado pelo autor (2026) no Minitab.}
 \end{figure}
 
 Como todos os grupos violam a normalidade ($p < 0{,}010$) — além de três dos quatro tamanhos violarem também a homocedasticidade ($p < 0{,}05$) —, a árvore de decisão (Figura~1) determina o emprego exclusivo de \textbf{testes não paramétricos}. Ressalta-se que a ausência de normalidade é o comportamento esperado em benchmarks de latência de software: tempos de resposta possuem um limite inferior físico rígido (determinado pelo custo mínimo de CPU, serialização e pilha TCP), mas apresentam cauda longa à direita causada por preempção do sistema operacional, pausas do coletor de lixo e contenção de \textit{cache}. Com amostras volumosas ($N = 1.000$), mesmo pequenas assimetrias são prontamente detectadas pelo teste de Kolmogorov-Smirnov. Esse mesmo comportamento foi observado no único estudo do mapeamento sistemático que aplicou testes estatísticos de hipótese \cite{soares2024}, o qual também rejeitou a normalidade em Go e recorreu a testes não paramétricos.
 
 \subsection{Análise 1 — REST vs. gRPC por Payload (Teste de Mann-Whitney)}
 
-Para responder à \textbf{QP1} (1 fator com 2 tratamentos: REST e gRPC), executou-se o \textbf{Teste de Mann-Whitney} (\textit{Stat $\rightarrow$ Nonparametrics $\rightarrow$ Mann-Whitney}) em cada tamanho de payload ($\alpha = 0{,}05$). A Tabela~5 reúne os resultados e a Figura~7 exibe as saídas do Minitab.
+Para responder à \textbf{QP1} (1 fator com 2 tratamentos: REST e gRPC), executou-se o \textbf{Teste de Mann-Whitney} (\textit{Stat $\rightarrow$ Nonparametrics $\rightarrow$ Mann-Whitney}) em cada tamanho de payload ($\alpha = 0{,}05$). A Tabela~5 reúne os resultados e a Figura~6 reproduz integralmente as saídas textuais geradas no Minitab.
 
 \begin{table}[H]
 \centering
@@ -520,36 +548,94 @@ Para responder à \textbf{QP1} (1 fator com 2 tratamentos: REST e gRPC), executo
 
 \begin{figure}[H]
 \centering
-\caption{Saídas do Teste de Mann-Whitney no Minitab comparando REST e gRPC em cada tamanho de payload}
-\begin{minipage}[t]{0.48\textwidth}
-  \centering
-  \minitabimg[\linewidth]{mw_1kb.png}{Mann-Whitney: REST vs. gRPC (1 KB)}
-  \par\vspace{2pt}{\footnotesize (a) Payload de 1 KB}
+\caption{Saídas do Teste de Mann-Whitney obtidas no Minitab comparando REST e gRPC em cada tamanho de payload}
+\begin{minipage}[t]{0.485\textwidth}
+  \minitabbox[\linewidth]{%
+    \ttfamily\scriptsize
+    \textbf{\color{minitabAzul}Mann-Whitney: REST\_1KB; gRPC\_1KB}\\[3pt]
+    \begin{tabular}{@{}lrr@{}}
+    \textbf{Sample} & \textbf{N} & \textbf{Median} \\
+    \hline
+    REST\_1KB & 1000 & 0.04050 \\
+    gRPC\_1KB & 1000 & 0.04025 \\
+    \end{tabular}\\[4pt]
+    \textbf{Estimation for Difference ($\eta_1 - \eta_2$)}\\
+    Difference: \textbf{0.000793}\\
+    95.00\% CI: (0.000167; 0.001417)\\[4pt]
+    \textbf{Test} ($H_0: \eta_1-\eta_2=0$ vs $H_1: \eta_1-\eta_2\neq 0$)\\
+    W-Value (adj. for ties): \textbf{1033151.50}\\
+    P-Value (adj. for ties): \textbf{0.011}
+  }
+  \par\vspace{3pt}\centering{\footnotesize (a) Payload de 1 KB}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.48\textwidth}
-  \centering
-  \minitabimg[\linewidth]{mw_100kb.png}{Mann-Whitney: REST vs. gRPC (100 KB)}
-  \par\vspace{2pt}{\footnotesize (b) Payload de 100 KB}
+\begin{minipage}[t]{0.485\textwidth}
+  \minitabbox[\linewidth]{%
+    \ttfamily\scriptsize
+    \textbf{\color{minitabAzul}Mann-Whitney: REST\_100KB; gRPC\_100KB}\\[3pt]
+    \begin{tabular}{@{}lrr@{}}
+    \textbf{Sample} & \textbf{N} & \textbf{Median} \\
+    \hline
+    REST\_100KB & 1000 & 0.497063 \\
+    gRPC\_100KB & 1000 & 0.195834 \\
+    \end{tabular}\\[4pt]
+    \textbf{Estimation for Difference ($\eta_1 - \eta_2$)}\\
+    Difference: \textbf{0.299249}\\
+    95.00\% CI: (0.296875; 0.301458)\\[4pt]
+    \textbf{Test} ($H_0: \eta_1-\eta_2=0$ vs $H_1: \eta_1-\eta_2\neq 0$)\\
+    W-Value (adj. for ties): \textbf{1493842.00}\\
+    P-Value (adj. for ties): \textbf{0.000}
+  }
+  \par\vspace{3pt}\centering{\footnotesize (b) Payload de 100 KB}
 \end{minipage}
+
 \vspace{8pt}
-\begin{minipage}[t]{0.48\textwidth}
-  \centering
-  \minitabimg[\linewidth]{mw_1mb.png}{Mann-Whitney: REST vs. gRPC (1 MB)}
-  \par\vspace{2pt}{\footnotesize (c) Payload de 1 MB}
+
+\begin{minipage}[t]{0.485\textwidth}
+  \minitabbox[\linewidth]{%
+    \ttfamily\scriptsize
+    \textbf{\color{minitabAzul}Mann-Whitney: REST\_1MB; gRPC\_1MB}\\[3pt]
+    \begin{tabular}{@{}lrr@{}}
+    \textbf{Sample} & \textbf{N} & \textbf{Median} \\
+    \hline
+    REST\_1MB & 1000 & 4.67779 \\
+    gRPC\_1MB & 1000 & 1.74217 \\
+    \end{tabular}\\[4pt]
+    \textbf{Estimation for Difference ($\eta_1 - \eta_2$)}\\
+    Difference: \textbf{2.93204}\\
+    95.00\% CI: (2.91512; 2.94846)\\[4pt]
+    \textbf{Test} ($H_0: \eta_1-\eta_2=0$ vs $H_1: \eta_1-\eta_2\neq 0$)\\
+    W-Value (adj. for ties): \textbf{1500500.00}\\
+    P-Value (adj. for ties): \textbf{0.000}
+  }
+  \par\vspace{3pt}\centering{\footnotesize (c) Payload de 1 MB}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.48\textwidth}
-  \centering
-  \minitabimg[\linewidth]{mw_4mb.png}{Mann-Whitney: REST vs. gRPC (4 MB)}
-  \par\vspace{2pt}{\footnotesize (d) Payload de 4 MB}
+\begin{minipage}[t]{0.485\textwidth}
+  \minitabbox[\linewidth]{%
+    \ttfamily\scriptsize
+    \textbf{\color{minitabAzul}Mann-Whitney: REST\_4MB; gRPC\_4MB}\\[3pt]
+    \begin{tabular}{@{}lrr@{}}
+    \textbf{Sample} & \textbf{N} & \textbf{Median} \\
+    \hline
+    REST\_4MB & 1000 & 18.7834 \\
+    gRPC\_4MB & 1000 &  6.9928 \\
+    \end{tabular}\\[4pt]
+    \textbf{Estimation for Difference ($\eta_1 - \eta_2$)}\\
+    Difference: \textbf{11.7458}\\
+    95.00\% CI: (11.7189; 11.7725)\\[4pt]
+    \textbf{Test} ($H_0: \eta_1-\eta_2=0$ vs $H_1: \eta_1-\eta_2\neq 0$)\\
+    W-Value (adj. for ties): \textbf{1499502.00}\\
+    P-Value (adj. for ties): \textbf{0.000}
+  }
+  \par\vspace{3pt}\centering{\footnotesize (d) Payload de 4 MB}
 \end{minipage}
-\fonte{elaborado pelo autor (2026).}
+\fonte{elaborado pelo autor (2026), transcrito da saída do Minitab (\texttt{GRPCxREST.mpx}).}
 \end{figure}
 
 Rejeita-se $H_{0,\text{arq}}$ nos quatro tamanhos ($p < 0{,}05$), mas com comportamento marcadamente distinto entre cargas mínimas e cargas médias/grandes: em \textbf{1~KB}, embora o teste de Mann-Whitney aponte diferença estatisticamente significativa ($p = 0{,}0115$), a diferença prática entre as medianas é residual (0,0405~ms no REST contra 0,0403~ms no gRPC; redução de apenas 0,62\%, $\hat{\eta}_{\text{R}}-\hat{\eta}_{\text{G}} = +0{,}0008$~ms), configurando empate técnico — o custo fixo de enquadramento HTTP/2 e controle de \textit{streams} do gRPC praticamente neutraliza a economia de 333~bytes do Protobuf. A partir de \textbf{100~KB}, o custo de serialização textual JSON domina o tempo de resposta e o gRPC assume ampla liderança, reduzindo a latência mediana em 60,60\% (100~KB), 62,76\% (1~MB, sem qualquer sobreposição entre as amostras: $U = 1.000.000$) e 62,77\% (4~MB).
 
 \subsection{Análise 2 — Efeito do Tamanho do Payload (Kruskal-Wallis e Pós-Teste)}
 
-Para responder à \textbf{QP2} (1 fator com 4 tratamentos: 1~KB, 100~KB, 1~MB e 4~MB), aplicou-se o \textbf{Teste de Kruskal-Wallis} (\textit{Stat $\rightarrow$ Nonparametrics $\rightarrow$ Kruskal-Wallis}) separadamente em cada arquitetura, seguido por comparações par-a-par com \textbf{Mann-Whitney}, conforme a árvore de decisão. Os resultados constam na Tabela~6 e na Figura~8.
+Para responder à \textbf{QP2} (1 fator com 4 tratamentos: 1~KB, 100~KB, 1~MB e 4~MB), aplicou-se o \textbf{Teste de Kruskal-Wallis} (\textit{Stat $\rightarrow$ Nonparametrics $\rightarrow$ Kruskal-Wallis}) separadamente em cada arquitetura, seguido por comparações par-a-par com \textbf{Mann-Whitney}, conforme a árvore de decisão. Os resultados constam na Tabela~6 e na saída textual do Minitab reproduzida na Figura~7.
 
 \begin{table}[H]
 \centering
@@ -570,18 +656,46 @@ gRPC (HTTP/2)   & 3.749,06 & 3 & $< 0{,}0001$ & Todos os 6 pares significativos 
 
 \begin{figure}[H]
 \centering
-\caption{Saídas do Teste de Kruskal-Wallis no Minitab avaliando o efeito do tamanho do payload em cada arquitetura}
-\begin{minipage}[t]{0.48\textwidth}
-  \centering
-  \minitabimg[\linewidth]{kw_rest.png}{Kruskal-Wallis: Latencia vs. Payload (REST)}
-  \par\vspace{2pt}{\footnotesize (a) Arquitetura REST}
+\caption{Saídas do Teste de Kruskal-Wallis obtidas no Minitab avaliando o efeito do tamanho do payload em cada arquitetura}
+\begin{minipage}[t]{0.485\textwidth}
+  \minitabbox[\linewidth]{%
+    \ttfamily\scriptsize
+    \textbf{\color{minitabAzul}Kruskal-Wallis: Latencia\_ms vs Payload (REST)}\\[3pt]
+    \begin{tabular}{@{}lrrrr@{}}
+    \textbf{Payload} & \textbf{N} & \textbf{Median} & \textbf{Mean Rank} & \textbf{Z-Value} \\
+    \hline
+    1KB     & 1000 &  0.0405 &  500.5 & $-47.43$ \\
+    100KB   & 1000 &  0.4971 & 1500.5 & $-15.81$ \\
+    1MB     & 1000 &  4.6778 & 2501.0 &  $15.83$ \\
+    4MB     & 1000 & 18.7834 & 3500.0 &  $47.41$ \\
+    Overall & 4000 &         & 2000.5 &          \\
+    \end{tabular}\\[4pt]
+    \textbf{Test} ($H_0$: All medians are equal)\\
+    DF = 3 \quad H-Value = \textbf{3748.29} \quad P-Value = \textbf{0.000}\\
+    (Not adjusted and adjusted for ties)
+  }
+  \par\vspace{3pt}\centering{\footnotesize (a) Arquitetura REST}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.48\textwidth}
-  \centering
-  \minitabimg[\linewidth]{kw_grpc.png}{Kruskal-Wallis: Latencia vs. Payload (gRPC)}
-  \par\vspace{2pt}{\footnotesize (b) Arquitetura gRPC}
+\begin{minipage}[t]{0.485\textwidth}
+  \minitabbox[\linewidth]{%
+    \ttfamily\scriptsize
+    \textbf{\color{minitabAzul}Kruskal-Wallis: Latencia\_ms vs Payload (gRPC)}\\[3pt]
+    \begin{tabular}{@{}lrrrr@{}}
+    \textbf{Payload} & \textbf{N} & \textbf{Median} & \textbf{Mean Rank} & \textbf{Z-Value} \\
+    \hline
+    1KB     & 1000 & 0.04025 &  500.5 & $-47.43$ \\
+    100KB   & 1000 & 0.19583 & 1500.5 & $-15.81$ \\
+    1MB     & 1000 & 1.74217 & 2500.5 &  $15.81$ \\
+    4MB     & 1000 & 6.99279 & 3500.5 &  $47.43$ \\
+    Overall & 4000 &         & 2000.5 &          \\
+    \end{tabular}\\[4pt]
+    \textbf{Test} ($H_0$: All medians are equal)\\
+    DF = 3 \quad H-Value = \textbf{3749.06} \quad P-Value = \textbf{0.000}\\
+    (Not adjusted and adjusted for ties)
+  }
+  \par\vspace{3pt}\centering{\footnotesize (b) Arquitetura gRPC}
 \end{minipage}
-\fonte{elaborado pelo autor (2026).}
+\fonte{elaborado pelo autor (2026), transcrito da saída do Minitab (\texttt{GRPCxREST.mpx}).}
 \end{figure}
 
 Rejeita-se $H_{0,\text{pay}}$ em ambas as arquiteturas ($p < 0{,}0001$), e todos os seis pares de tamanhos diferem significativamente ($p < 0{,}0001$). Além disso, ao passar de 1~KB para 4~MB, a mediana do REST cresceu \textbf{463,8 vezes}, enquanto a do gRPC cresceu \textbf{173,7 vezes}, confirmando escalabilidade substancialmente mais favorável do gRPC para grandes volumes estruturados.
