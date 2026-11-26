@@ -130,7 +130,7 @@
 \vspace{4pt}
 
 {\small\noindent
-\textbf{[Contexto]} A adoção de gRPC em substituição ao estilo arquitetural REST costuma se apoiar na expectativa de menor latência, mas um mapeamento sistemático prévio revelou resultados divergentes conforme o tamanho do payload e escassez de testes estatísticos formais nos estudos empíricos. \textbf{[Objetivo]} Avaliar estatisticamente o desempenho de implementações equivalentes em Go utilizando REST (HTTP/1.1 + JSON) e gRPC (HTTP/2 + \textit{Protocol Buffers}) em quatro tamanhos de payload (1~KB, 100~KB, 1~MB e 4~MB). \textbf{[Método]} Conduziu-se um experimento controlado em macOS (Apple M3) com fase de aquecimento (100 requisições descartadas por cenário), medição com temporizador monotônico de alta resolução e coleta de 1.000 observações por combinação, totalizando 8.000 medições. Os dados foram analisados no software Minitab seguindo integralmente a árvore de decisão de \citeonline{sirqueira2015} ($\alpha = 0{,}05$). \textbf{[Resultados]} A serialização em \textit{Protocol Buffers} reduziu o tamanho trafegado entre 29,08\% e 30,11\%. O teste de Kolmogorov-Smirnov rejeitou a normalidade em todos os oito grupos ($p < 0{,}010$), direcionando a inferência para métodos não paramétricos. O teste de Mann-Whitney identificou diferenças estatisticamente significativas em todos os tamanhos: em 1~KB, ambas as arquiteturas apresentaram empate técnico em magnitude prática (mediana de 0,0405~ms no REST contra 0,0403~ms no gRPC; redução de 0,62\%, $p = 0{,}0115$); a partir de 100~KB o gRPC obteve vantagem expressiva, com reduções medianas de 60,60\% (100~KB), 62,76\% (1~MB) e 62,77\% (4~MB), todos com $p < 0{,}0001$. O teste de Kruskal-Wallis confirmou efeito significativo do tamanho do payload em ambas as arquiteturas ($H = 3.748{,}29$ no REST e $H = 3.749{,}06$ no gRPC; $p < 0{,}0001$). \textbf{[Conclusão]} A vantagem prática do gRPC sobre REST depende fortemente do tamanho do payload: em mensagens muito pequenas (1~KB) sem latência de rede, o custo fixo de enquadramento do HTTP/2/gRPC praticamente neutraliza a economia da serialização binária, enquanto em payloads médios e grandes ($\ge$ 100~KB) o gRPC proporciona ganhos substanciais e estatisticamente consistentes acima de 60\%.\par}
+\textbf{[Contexto]} A adoção de gRPC em substituição ao estilo arquitetural REST costuma se apoiar na expectativa de menor latência, mas um mapeamento sistemático prévio revelou resultados divergentes conforme o tamanho do payload e escassez de testes estatísticos formais nos estudos empíricos. \textbf{[Objetivo]} Avaliar estatisticamente o desempenho de implementações equivalentes em Go utilizando REST (HTTP/1.1 + JSON) e gRPC (HTTP/2 + \textit{Protocol Buffers}) em quatro tamanhos de payload (1~KB, 100~KB, 1~MB e 4~MB). \textbf{[Método]} Conduziu-se um experimento controlado em macOS (Apple M3) com fase de aquecimento (100 requisições descartadas por cenário), medição com temporizador monotônico de alta resolução e coleta de 1.000 observações por combinação, totalizando 8.000 medições. Os dados foram analisados no software Minitab seguindo integralmente a árvore de decisão de \citeonline{sirqueira2015} ($\alpha = 0{,}05$). \textbf{[Resultados]} A serialização em \textit{Protocol Buffers} reduziu o tamanho trafegado entre 29,08\% e 30,11\%. O teste de Kolmogorov-Smirnov rejeitou a normalidade em todos os oito grupos ($p < 0{,}010$), direcionando a inferência para métodos não paramétricos. O teste de Mann-Whitney identificou diferenças estatisticamente significativas em todos os tamanhos: em 1~KB, ambas as arquiteturas apresentaram empate técnico em magnitude prática (mediana de 0,0405~ms no REST contra 0,0403~ms no gRPC; redução de 0,62\%, $p = 0{,}0115$); a partir de 100~KB o gRPC obteve vantagem expressiva, com reduções medianas de 60,60\% (100~KB), 62,76\% (1~MB) e 62,77\% (4~MB), todos com $p < 0{,}0001$. O teste de Kruskal-Wallis confirmou efeito significativo do tamanho do payload em ambas as arquiteturas ($H = 3.748{,}29$ no REST e $H = 3.749{,}06$ no gRPC; $p < 0{,}0001$), corroborado pelo pós-teste de Mann-Whitney em todos os 12 pares avaliados ($p < 0{,}0001$). \textbf{[Conclusão]} A vantagem prática do gRPC sobre REST depende fortemente do tamanho do payload: em mensagens muito pequenas (1~KB) sem latência de rede, o custo fixo de enquadramento do HTTP/2/gRPC praticamente neutraliza a economia da serialização binária, enquanto em payloads médios e grandes ($\ge$ 100~KB) o gRPC proporciona ganhos substanciais e estatisticamente consistentes acima de 60\%.\par}
 
 \vspace{10pt}
 
@@ -399,7 +399,7 @@ Na maioria das distribuições observa-se assimetria positiva (média superior �
 
 \subsection{Análise de Outliers}
 
-Aplicou-se o teste de Grubbs no Minitab (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ Outlier Test}, $\alpha = 0{,}05$), complementado pela contagem pelos critérios interquartis ($Q_3 + 1{,}5\cdot\text{IQR}$ e $Q_3 + 3\cdot\text{IQR}$), conforme resumido na Tabela~3 e reproduzido na saída textual do Minitab da Figura~3.
+Aplicou-se o teste de Grubbs no Minitab (\textit{Stat $\rightarrow$ Basic Statistics $\rightarrow$ Outlier Test}, $\alpha = 0{,}05$), complementado pela contagem bilateral pelos critérios interquartis ($Q_1 - 1{,}5\cdot\text{IQR}$, $Q_3 + 1{,}5\cdot\text{IQR}$, $Q_1 - 3\cdot\text{IQR}$ e $Q_3 + 3\cdot\text{IQR}$), conforme resumido na Tabela~3 e reproduzido na saída textual do Minitab da Figura~3.
 
 \begin{table}[H]
 \centering
@@ -454,7 +454,7 @@ Aplicou-se o teste de Grubbs no Minitab (\textit{Stat $\rightarrow$ Basic Statis
 \fonte{elaborado pelo autor (2026), transcrito da saída do Minitab (\texttt{GRPCxREST.mpx}).}
 \end{figure}
 
-De acordo com \citeonline{sirqueira2015}, \textit{outliers} decorrentes de valores fisicamente possíveis da população não devem ser descartados arbitrariamente. Como os picos observados correspondem à latência de cauda (\textit{tail latency}) causada por pausas do coletor de lixo do Go e escalonamento do sistema operacional, optou-se por mantê-los na amostra e conduzir a inferência por métodos não paramétricos baseados em postos e medianas, naturalmente robustos a valores extremos.
+De acordo com \citeonline{sirqueira2015}, \textit{outliers} decorrentes de valores fisicamente possíveis da população não devem ser descartados arbitrariamente. Como os picos observados correspondem à latência de cauda (\textit{tail latency}) causada por pausas do coletor de lixo do Go e escalonamento do sistema operacional, optou-se por mantê-los na amostra e conduzir a inferência por métodos não paramétricos baseados em postos e medianas, naturalmente robustos a valores extremos. Nota-se ainda que o percentual elevado de pontos fora de $1{,}5\cdot\text{IQR}$ em \texttt{gRPC 1~MB} (25,1\%) decorre da dispersão central extremamente compacta desse grupo ($\text{IQR} = 0{,}0587$~ms), embora seu valor extremo apresente o menor afastamento relativo no teste de Grubbs ($G = 4{,}31$; $p = 0{,}015$).
 
 \subsection{Verificação dos Pressupostos: Normalidade e Homocedasticidade}
 
@@ -518,6 +518,7 @@ Dado $N = 1.000 > 30$ em todos os grupos, aplicou-se o \textbf{Teste de Kolmogor
 \caption{Verificação complementar de homocedasticidade pelo teste de Levene no Minitab (payload de 1 MB)}
 \minitabimg[0.78\linewidth]{levene_1mb.png}{Stat -> Basic Statistics -> 2 Variances (1 MB)}
 \fonte{elaborado pelo autor (2026) no Minitab.}
+\nota{Devido à forte assimetria das distribuições de latência, o Minitab omite o intervalo de confiança gráfico da razão de desvios padrão pelo método de Levene, mantendo íntegro o cálculo do $p$-valor do teste ($p = 0{,}000$).}
 \end{figure}
 
 Como todos os grupos violam a normalidade ($p < 0{,}010$) — além de três dos quatro tamanhos violarem também a homocedasticidade ($p < 0{,}05$) —, a árvore de decisão (Figura~1) determina o emprego exclusivo de \textbf{testes não paramétricos}. Ressalta-se que a ausência de normalidade é o comportamento esperado em benchmarks de latência de software: tempos de resposta possuem um limite inferior físico rígido (determinado pelo custo mínimo de CPU, serialização e pilha TCP), mas apresentam cauda longa à direita causada por preempção do sistema operacional, pausas do coletor de lixo e contenção de \textit{cache}. Com amostras volumosas ($N = 1.000$), mesmo pequenas assimetrias são prontamente detectadas pelo teste de Kolmogorov-Smirnov. Esse mesmo comportamento foi observado no único estudo do mapeamento sistemático que aplicou testes estatísticos de hipótese \cite{soares2024}, o qual também rejeitou a normalidade em Go e recorreu a testes não paramétricos.
@@ -544,6 +545,7 @@ Para responder à \textbf{QP1} (1 fator com 2 tratamentos: REST e gRPC), executo
 \hline
 \end{tabularx}
 \fonte{elaborado pelo autor (2026).}
+\nota{Na janela de saída do Minitab (Figura~6), os $p$-valores são exibidos com três casas decimais (\texttt{0.011} para 1~KB e \texttt{0.000} para $p < 0{,}0001$).}
 \end{table}
 
 \begin{figure}[H]
@@ -631,7 +633,7 @@ Para responder à \textbf{QP1} (1 fator com 2 tratamentos: REST e gRPC), executo
 \fonte{elaborado pelo autor (2026), transcrito da saída do Minitab (\texttt{GRPCxREST.mpx}).}
 \end{figure}
 
-Rejeita-se $H_{0,\text{arq}}$ nos quatro tamanhos ($p < 0{,}05$), mas com comportamento marcadamente distinto entre cargas mínimas e cargas médias/grandes: em \textbf{1~KB}, embora o teste de Mann-Whitney aponte diferença estatisticamente significativa ($p = 0{,}0115$), a diferença prática entre as medianas é residual (0,0405~ms no REST contra 0,0403~ms no gRPC; redução de apenas 0,62\%, $\hat{\eta}_{\text{R}}-\hat{\eta}_{\text{G}} = +0{,}0008$~ms), configurando empate técnico — o custo fixo de enquadramento HTTP/2 e controle de \textit{streams} do gRPC praticamente neutraliza a economia de 333~bytes do Protobuf. A partir de \textbf{100~KB}, o custo de serialização textual JSON domina o tempo de resposta e o gRPC assume ampla liderança, reduzindo a latência mediana em 60,60\% (100~KB), 62,76\% (1~MB, sem qualquer sobreposição entre as amostras: $U = 1.000.000$) e 62,77\% (4~MB).
+Rejeita-se $H_{0,\text{arq}}$ nos quatro tamanhos ($p < 0{,}05$), mas com comportamento marcadamente distinto entre cargas mínimas e cargas médias/grandes: em \textbf{1~KB}, embora o teste de Mann-Whitney aponte diferença estatisticamente significativa ($p = 0{,}0115$), a diferença prática entre as medianas é residual (0,04050~ms no REST contra 0,04025~ms no gRPC; diferença de 0,00025~ms ou apenas 0,62\%, com estimativa de Hodges-Lehmann $\hat{\eta}_{\text{R}}-\hat{\eta}_{\text{G}} = +0{,}0008$~ms), configurando empate técnico — o custo fixo de enquadramento HTTP/2 e controle de \textit{streams} do gRPC praticamente neutraliza a economia de 333~bytes do Protobuf. A partir de \textbf{100~KB}, o custo de serialização textual JSON domina o tempo de resposta e o gRPC assume ampla liderança, reduzindo a latência mediana em 60,60\% (100~KB), 62,76\% (1~MB, atingindo $W = 1.500.500{,}0$, valor máximo teórico para $N_1 = N_2 = 1.000$, que indica ausência completa de sobreposição entre as distribuições) e 62,77\% (4~MB).
 
 \subsection{Análise 2 — Efeito do Tamanho do Payload (Kruskal-Wallis e Pós-Teste)}
 
@@ -698,14 +700,48 @@ gRPC (HTTP/2)   & 3.749,06 & 3 & $< 0{,}0001$ & Todos os 6 pares significativos 
 \fonte{elaborado pelo autor (2026), transcrito da saída do Minitab (\texttt{GRPCxREST.mpx}).}
 \end{figure}
 
-Rejeita-se $H_{0,\text{pay}}$ em ambas as arquiteturas ($p < 0{,}0001$), e todos os seis pares de tamanhos diferem significativamente ($p < 0{,}0001$). Além disso, ao passar de 1~KB para 4~MB, a mediana do REST cresceu \textbf{463,8 vezes}, enquanto a do gRPC cresceu \textbf{173,7 vezes}, confirmando escalabilidade substancialmente mais favorável do gRPC para grandes volumes estruturados.
+Rejeita-se $H_{0,\text{pay}}$ em ambas as arquiteturas ($p < 0{,}0001$). Seguindo o procedimento da Seção 3.4 de \citeonline{sirqueira2015}, executaram-se no Minitab as 12 comparações pós-teste par-a-par via Teste de Mann-Whitney (seis pares no REST e seis pares no gRPC), cujos resultados completos encontram-se na Tabela~7.
+
+\begin{table}[H]
+\centering
+\caption{Resultados do pós-teste de Mann-Whitney par-a-par entre os tamanhos de payload em cada arquitetura ($\alpha = 0{,}05$)}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.28}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}p{2.95cm}>{\raggedleft\arraybackslash}p{1.85cm}>{\centering\arraybackslash}X>{\raggedleft\arraybackslash}p{1.75cm}>{\centering\arraybackslash}p{1.35cm}}
+\hline
+\rowcolor{cabecalho}
+\textbf{Arq.} & \textbf{Par Comparado} & \textbf{$\hat{\eta}_1 - \hat{\eta}_2$ (ms)} & \textbf{IC 95\% (ms)} & \textbf{Estat. $W$} & \textbf{$p$-valor} \\
+\hline
+\multirow{6}{*}{REST}
+  & 1 KB vs. 100 KB   & $-0{,}4530$  & $(-0{,}4553;\ -0{,}4503)$   & 500.500,0 & $< 0{,}0001$ \\
+  & 1 KB vs. 1 MB     & $-4{,}6324$  & $(-4{,}6473;\ -4{,}6156)$   & 500.500,0 & $< 0{,}0001$ \\
+  & 1 KB vs. 4 MB     & $-18{,}7388$ & $(-18{,}7625;\ -18{,}7210)$ & 500.500,0 & $< 0{,}0001$ \\
+  & 100 KB vs. 1 MB   & $-4{,}1639$  & $(-4{,}1786;\ -4{,}1495)$   & 500.500,0 & $< 0{,}0001$ \\
+  & 100 KB vs. 4 MB   & $-18{,}2788$ & $(-18{,}2964;\ -18{,}2615)$ & 500.500,0 & $< 0{,}0001$ \\
+  & 1 MB vs. 4 MB     & $-14{,}1094$ & $(-14{,}1307;\ -14{,}0875)$ & 501.015,0 & $< 0{,}0001$ \\
+\hline
+\multirow{6}{*}{gRPC}
+  & 1 KB vs. 100 KB   & $-0{,}1551$  & $(-0{,}1558;\ -0{,}1544)$   & 500.500,0 & $< 0{,}0001$ \\
+  & 1 KB vs. 1 MB     & $-1{,}6985$  & $(-1{,}7013;\ -1{,}6958)$   & 500.500,0 & $< 0{,}0001$ \\
+  & 1 KB vs. 4 MB     & $-6{,}9483$  & $(-6{,}9606;\ -6{,}9376)$   & 500.500,0 & $< 0{,}0001$ \\
+  & 100 KB vs. 1 MB   & $-1{,}5444$  & $(-1{,}5472;\ -1{,}5418)$   & 500.500,0 & $< 0{,}0001$ \\
+  & 100 KB vs. 4 MB   & $-6{,}7928$  & $(-6{,}8050;\ -6{,}7824)$   & 500.500,0 & $< 0{,}0001$ \\
+  & 1 MB vs. 4 MB     & $-5{,}2595$  & $(-5{,}2765;\ -5{,}2441)$   & 500.500,0 & $< 0{,}0001$ \\
+\hline
+\end{tabularx}
+\fonte{elaborado pelo autor (2026), com base nas saídas do Minitab (\texttt{GRPCxREST.mpx}).}
+\nota{Todos os pares permanecem altamente significativos mesmo sob correção conservadora de Bonferroni ($\alpha_{\text{adj}} = 0{,}05/6 = 0{,}0083$).}
+\end{table}
+
+Todos os 12 pares apresentam diferenças altamente significativas ($p < 0{,}0001$, preservadas mesmo sob correção de Bonferroni). Destaca-se que em 11 dos 12 pares a estatística atingiu exatamente $W = 500.500{,}0$ — valor mínimo teórico para $N_1 = N_2 = 1.000$ ($N_1(N_1+1)/2$) —, evidenciando separação total sem sobreposição entre as faixas de payload; a única exceção ocorreu em \texttt{REST 1~MB vs. 4~MB} ($W = 501.015{,}0$), devido ao pico de latência de cauda em 1~MB (18,8021~ms) que superou o mínimo de 4~MB (17,2046~ms). Além disso, ao passar de 1~KB para 4~MB, a mediana do REST cresceu \textbf{463,8 vezes}, enquanto a do gRPC cresceu \textbf{173,7 vezes}, confirmando escalabilidade substancialmente mais favorável do gRPC para grandes volumes estruturados.
 
 % =============================================================================
 % 4. DISCUSSAO E AMEACAS A VALIDADE
 % =============================================================================
 \section{DISCUSSÃO E AMEAÇAS À VALIDADE}
 
-Os resultados conectam-se diretamente às evidências levantadas no mapeamento sistemático \cite{coimbra2026}. O ganho expressivo do gRPC entre 100~KB e 4~MB (acima de 60\%) converge com \citeonline{buzhin2023}, \citeonline{ain2025} e \citeonline{ye2026}, enquanto o empate técnico observado em 1~KB (diferença prática de apenas 0,0002~ms) dialoga com \citeonline{bolanowski2022}, evidenciando que, em mensagens muito pequenas sem latência de rede e sem TLS, o \textit{overhead} fixo de enquadramento HTTP/2 anula quase integralmente o benefício da serialização binária. Por outro lado, o contraste em relação a \citeonline{soares2024} — que observaram inversão favorável ao REST em 781~KB em Go — reforça que a estrutura do payload (objetos estruturados tipados vs. blocos textuais), o reuso de conexões, a arquitetura de hardware e as versões do runtime influenciam diretamente o comportamento das curvas.
+Os resultados conectam-se diretamente às evidências levantadas no mapeamento sistemático \cite{coimbra2026}. O ganho expressivo do gRPC entre 100~KB e 4~MB (acima de 60\%) converge com \citeonline{buzhin2023}, \citeonline{ain2025} e \citeonline{ye2026}, enquanto o empate técnico observado em 1~KB (diferença prática de apenas 0,00025~ms, ou 0,25~$\mu$s) dialoga com \citeonline{bolanowski2022}, evidenciando que, em mensagens muito pequenas sem latência de rede e sem TLS, o \textit{overhead} fixo de enquadramento HTTP/2 anula quase integralmente o benefício da serialização binária. Por outro lado, o contraste em relação a \citeonline{soares2024} — que observaram inversão favorável ao REST em 781~KB em Go — reforça que a estrutura do payload (objetos estruturados tipados vs. blocos textuais), o reuso de conexões, a arquitetura de hardware e as versões do runtime influenciam diretamente o comportamento das curvas.
 
 Quanto às ameaças à validade \cite{wohlin2012}, destacam-se: (i) \textbf{Validade de Construto}: comparou-se REST sobre HTTP/1.1 com gRPC sobre HTTP/2, combinando o efeito da serialização ao da versão do protocolo de transporte; (ii) \textbf{Validade Interna}: a execução em sistema operacional multiprogramado sujeita as medições a pausas de coletor de lixo e escalonamento, mitigada por isolamento do ambiente, aquecimento prévio, temporizador monotônico de alta resolução, elevado número de repetições ($N = 1.000$) e estatística não paramétrica; (iii) \textbf{Validade Externa}: o uso de rede local (\textit{loopback}), sem TLS e sem concorrência, limita a generalização direta para redes distribuídas reais; e (iv) \textbf{Validade de Conclusão}: mitigada pelo elevado poder amostral e pela estrita conformidade com a árvore de decisão de \citeonline{sirqueira2015}.
 
